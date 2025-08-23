@@ -19,9 +19,9 @@ const InvoiceList = ({
   invoicesLoaded,
 }: InvoiceListProps) => {
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center py-[55px] space-y-6">
+    <div className="w-full h-full flex flex-col items-center justify-center py-[32px] space-y-6">
       {loading ? (
-        Array.from({ length: 6 }).map((_, index) => (
+        Array.from({ length: 30 }).map((_, index) => (
           <SkeletonInvoiceCard key={index} />
         ))
       ) : invoicesLoaded && filteredInvoices.length === 0 ? (
