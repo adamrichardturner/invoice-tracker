@@ -5,14 +5,24 @@ import useInvoices from "@/hooks/invoices/useInvoices";
 import useFilteredInvoices from "../hooks/invoices/useFilteredInvoices";
 import { useEffect } from "react";
 import Sidebar from "@/components/Sidebar/Sidebar";
+import { useUIStore } from "@/stores/UIState/useUIStore";
 
 export default function InvoicesPage() {
-  const { loading, invoicesLoaded, fetchInvoices } = useInvoices();
+  const {
+    loading,
+    loadingMore,
+    invoicesLoaded,
+    fetchInvoices,
+    fetchMoreInvoices,
+    hasMore,
+    totalCount,
+  } = useInvoices();
   const { filteredInvoices } = useFilteredInvoices();
+  const selectedFilters = useUIStore((state) => state.selectedFilters);
 
   useEffect(() => {
     fetchInvoices();
-  }, [fetchInvoices]);
+  }, [fetchInvoices, selectedFilters]);
 
   return (
     <div className="flex min-h-screen w-full items-start justify-center pt-[120px] md:pl-[103px] md:pt-[77px]">
@@ -22,6 +32,10 @@ export default function InvoicesPage() {
           filteredInvoices={filteredInvoices}
           invoicesLoaded={invoicesLoaded}
           loading={loading}
+          loadingMore={loadingMore}
+          hasMore={hasMore}
+          invoiceTotal={totalCount}
+          onLoadMore={fetchMoreInvoices}
         />
       </main>
     </div>
