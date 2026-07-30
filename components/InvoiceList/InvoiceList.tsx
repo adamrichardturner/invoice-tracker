@@ -135,7 +135,9 @@ const InvoiceList = ({
         ) : null}
       </AnimatePresence>
 
-      {hasMore ? <div ref={sentinelRef} className="h-4 w-full" aria-hidden /> : null}
+      {hasMore ? (
+        <div ref={sentinelRef} className="h-4 w-full" aria-hidden />
+      ) : null}
     </div>
   );
 };

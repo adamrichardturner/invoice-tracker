@@ -9,8 +9,11 @@ export default function InvoiceItemsSection({
   invoiceItems,
   invoiceTotal,
 }: InvoiceItemProps) {
-  const displayInvoiceItems = (invoiceItems ?? []).map((item) => (
-    <InvoiceItemRow key={item.item_description} invoiceItem={item} />
+  const displayInvoiceItems = (invoiceItems ?? []).map((item, index) => (
+    <InvoiceItemRow
+      key={item.id ? String(item.id) : `${item.item_description}-${index}`}
+      invoiceItem={item}
+    />
   ));
   return (
     <>
