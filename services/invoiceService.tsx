@@ -1,6 +1,7 @@
 "use client";
 
 import { InvoiceFormSchemaType } from "@/components/InvoiceForm";
+import { Invoice } from "@/types/Invoice";
 import axios, { isAxiosError } from "axios";
 
 const api = axios.create({
@@ -12,19 +13,42 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export const getInvoices = async () => {
+export const getInvoices = async (params?: {
+  cursor?: string | null;
+  limit?: number;
+  statuses?: string[];
+}) => {
   try {
-    const response = await api.get("/api/invoices");
-    return response.data;
+    const searchParams = new URLSearchParams();
+    if (params?.cursor) {
+      searchParams.set("cursor", params.cursor);
+    }
+    if (params?.limit) {
+      searchParams.set("limit", String(params.limit));
+    }
+    if (params?.statuses && params.statuses.length > 0) {
+      searchParams.set("status", params.statuses.join(","));
+    }
+
+    const query = searchParams.toString();
+    const response = await api.get(
+      query.length > 0 ? `/api/invoices?${query}` : "/api/invoices",
+    );
+    return response.data as {
+      data: Invoice[];
+      nextCursor: string | null;
+      hasMore: boolean;
+      totalCount: number;
+    };
   } catch (error) {
     if (isAxiosError(error)) {
       throw new Error(error.message);
     } else if (error instanceof Error) {
       throw new Error(
-        error.message || "An unknown error occurred during logout",
+        error.message || "An unknown error occurred while fetching invoices",
       );
     }
-    throw new Error("An unknown error occurred during logout");
+    throw new Error("An unknown error occurred while fetching invoices");
   }
 };
 

@@ -4,7 +4,17 @@ import { StateCreator } from "zustand";
 export interface IInvoicesSlice {
   invoices: Invoice[];
   selectedInvoice?: Invoice;
-  addInvoices: (invoices: Invoice[]) => void;
+  nextCursor: string | null;
+  hasMore: boolean;
+  totalCount: number;
+  setInvoicesPage: (payload: {
+    invoices: Invoice[];
+    nextCursor: string | null;
+    hasMore: boolean;
+    totalCount: number;
+    append: boolean;
+  }) => void;
+  resetInvoices: () => void;
   addSingleInvoice: (invoice: Invoice) => void;
   setSelectedInvoice: (invoice: Invoice | undefined) => void;
   updateInvoice: (updatedInvoice: Invoice) => void;
@@ -14,13 +24,43 @@ export interface IInvoicesSlice {
 
 export const createInvoicesSlice: StateCreator<IInvoicesSlice> = (set) => ({
   invoices: [],
-  addInvoices: (invoices: Invoice[]) =>
+  nextCursor: null,
+  hasMore: false,
+  totalCount: 0,
+  setInvoicesPage: ({ invoices, nextCursor, hasMore, totalCount, append }) =>
+    set((state) => {
+      if (!append) {
+        return {
+          invoices,
+          nextCursor,
+          hasMore,
+          totalCount,
+        };
+      }
+
+      const existingIds = new Set(state.invoices.map((invoice) => invoice.id));
+      const uniqueIncoming = invoices.filter(
+        (invoice) => !existingIds.has(invoice.id),
+      );
+
+      return {
+        invoices: [...state.invoices, ...uniqueIncoming],
+        nextCursor,
+        hasMore,
+        totalCount,
+      };
+    }),
+  resetInvoices: () =>
     set(() => ({
-      invoices,
+      invoices: [],
+      nextCursor: null,
+      hasMore: false,
+      totalCount: 0,
     })),
   addSingleInvoice: (invoice: Invoice) =>
     set((state) => ({
-      invoices: [...state.invoices, invoice],
+      invoices: [invoice, ...state.invoices],
+      totalCount: state.totalCount + 1,
     })),
   setSelectedInvoice: (invoice: Invoice | undefined) =>
     set(() => ({
@@ -51,5 +91,6 @@ export const createInvoicesSlice: StateCreator<IInvoicesSlice> = (set) => ({
       invoices: state.invoices.filter((invoice) => invoice.id !== id),
       selectedInvoice:
         state.selectedInvoice?.id === id ? undefined : state.selectedInvoice,
+      totalCount: Math.max(0, state.totalCount - 1),
     })),
 });
