@@ -102,7 +102,7 @@ const useSelectedInvoice = () => {
           invoiceData,
         );
         setSelectedInvoice(updatedInvoice);
-        updateInvoice(selectedInvoice.id, updatedInvoice);
+        updateInvoiceInStore(updatedInvoice);
         setSuccess(true);
         setError(null);
         toast.info("Invoice updated successfully");

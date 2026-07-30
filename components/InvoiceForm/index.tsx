@@ -128,7 +128,7 @@ export function InvoiceForm() {
       }
     });
     return () => subscription.unsubscribe();
-  }, [form.watch]);
+  }, [form]);
 
   const handleSubmit = async (data: InvoiceFormSchemaType) => {
     setIsSubmitting(true);
@@ -140,7 +140,7 @@ export function InvoiceForm() {
         await updateSelectedInvoice(data);
       }
       setSheetOpen(false);
-    } catch (error) {
+    } catch {
       toast("Failed to submit invoice");
     } finally {
       setIsSubmitting(false);
@@ -259,7 +259,7 @@ export function InvoiceForm() {
             name="bill_to_name"
             render={({ field }) => (
               <FormItem className="w-full">
-                <FormLabel>Client's Name</FormLabel>
+                <FormLabel>{"Client's Name"}</FormLabel>
                 <Input
                   {...field}
                   error={Boolean(form.formState.errors.bill_to_name)}
@@ -272,7 +272,7 @@ export function InvoiceForm() {
             name="bill_to_email"
             render={({ field }) => (
               <FormItem className="w-full">
-                <FormLabel>Client's Email</FormLabel>
+                <FormLabel>{"Client's Email"}</FormLabel>
                 <Input
                   {...field}
                   error={Boolean(form.formState.errors.bill_to_email)}
@@ -597,9 +597,7 @@ function generateRandomData() {
     bill_to_country: "Clientland",
     invoice_date: new Date(),
     payment_terms: ["Net 30 Days", "14 Days", "7 Days"][randomNumber(0, 2)] as
-      | "Net 30 Days"
-      | "14 Days"
-      | "7 Days",
+      "Net 30 Days" | "14 Days" | "7 Days",
     project_description: "Random project description",
     items: [
       {

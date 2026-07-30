@@ -1,6 +1,6 @@
 "use client";
 
-import { Invoice, InvoiceStatus } from "@/types/Invoice";
+import { Invoice } from "@/types/Invoice";
 import { addDaysToDateFromTerm } from "@/utils/addDaysToDate";
 import InvoiceItemsSection from "./InvoiceItemsSection";
 
