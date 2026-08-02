@@ -2,16 +2,7 @@
 
 import { InvoiceFormSchemaType } from "@/components/InvoiceForm";
 import { Invoice } from "@/types/Invoice";
-import axios, { isAxiosError } from "axios";
-
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || undefined,
-  withCredentials: true,
-});
-
-api.interceptors.request.use((config) => {
-  return config;
-});
+import { api, isAxiosError } from "@/services/api";
 
 export const getInvoices = async (params?: {
   cursor?: string | null;
@@ -97,7 +88,7 @@ export const createInvoice = async (invoiceData: InvoiceFormSchemaType) => {
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
-      throw new Error(error.response?.data || error.message);
+      throw new Error(error.response?.data?.message ?? error.message);
     } else if (error instanceof Error) {
       throw new Error(
         error.message || "An unknown error occurred while creating the invoice",
@@ -139,7 +130,7 @@ export const updateInvoice = async (
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
-      throw new Error(error.response?.data || error.message);
+      throw new Error(error.response?.data?.message ?? error.message);
     } else if (error instanceof Error) {
       throw new Error(
         error.message || "An unknown error occurred while updating the invoice",
@@ -157,7 +148,7 @@ export const updateInvoiceStatus = async (id: string, status: string) => {
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
-      throw new Error(error.response?.data || error.message);
+      throw new Error(error.response?.data?.message ?? error.message);
     } else if (error instanceof Error) {
       throw new Error(
         error.message ||
@@ -175,7 +166,7 @@ export const deleteInvoice = async (id: string) => {
     await api.delete(`/api/invoices/${id}`);
   } catch (error) {
     if (isAxiosError(error)) {
-      throw new Error(error.response?.data || error.message);
+      throw new Error(error.response?.data?.message ?? error.message);
     } else if (error instanceof Error) {
       throw new Error(
         error.message || "An unknown error occurred while deleting the invoice",
