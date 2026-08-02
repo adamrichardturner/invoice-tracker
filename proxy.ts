@@ -1,28 +1,54 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import {
+  applySetCookies,
+  clearAuthCookie,
+  redirectToAuth,
+  refreshAuthToken,
+} from "@/lib/auth";
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
   const { pathname } = request.nextUrl;
-
-  if (token && pathname.startsWith("/auth")) {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
-
-  if (
-    pathname.startsWith("/auth") ||
+  const isAuthRoute = pathname.startsWith("/auth");
+  const isPassthroughRoute =
     pathname.startsWith("/_next") ||
     pathname.startsWith("/user") ||
-    pathname.startsWith("/api")
-  ) {
+    pathname.startsWith("/api");
+
+  if (isPassthroughRoute) {
     return NextResponse.next();
   }
 
   if (!token) {
-    return NextResponse.redirect(new URL("/auth/demo", request.url));
+    if (isAuthRoute) {
+      return NextResponse.next();
+    }
+
+    return redirectToAuth(request);
   }
 
-  return NextResponse.next();
+  const refreshResult = await refreshAuthToken(token);
+
+  if (!refreshResult.ok) {
+    if (isAuthRoute) {
+      const response = NextResponse.next();
+      clearAuthCookie(response);
+      return response;
+    }
+
+    return redirectToAuth(request);
+  }
+
+  if (isAuthRoute) {
+    const response = NextResponse.redirect(new URL("/", request.url));
+    applySetCookies(response, refreshResult.setCookies);
+    return response;
+  }
+
+  const response = NextResponse.next();
+  applySetCookies(response, refreshResult.setCookies);
+  return response;
 }
 
 export const config = {
